@@ -26,10 +26,6 @@ of steps.
 
 ## What Goes Where
 
-- `AGENTS.md`: Entry point for Codex and similar agents. Keep it as
-  `READ [instruction.md](instruction.md) first.`
-- `CLAUDE.md`: Entry point for Claude Code. Keep it as
-  `READ [instruction.md](instruction.md) first.`
 - `instruction.md`: The main guide for humans and AI agents.
 - `setup.md`: One-time setup steps after cloning this template for a new research
   project.
