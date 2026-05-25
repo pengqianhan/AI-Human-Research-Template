@@ -41,8 +41,39 @@ of steps.
   experiment plans, and reflections after reading or analysis.
 - `References/`: Papers, bibliographic files, literature notes, source PDFs, links, and
   citation material.
-- `skills/`: Project-specific agent instructions, reusable prompts, or workflow notes.
-  These are local research collaboration notes, not system-level Codex skills.
+- `skills/`: Research initialization skills. When starting a new research project from
+  this template, copy these skills into the user-level skills directory for the code
+  agent being used.
+
+## Installing Skills During Initialization
+
+If the project will use Claude Code:
+
+```bash
+mkdir -p ~/.claude/skills/
+cp -r skills/* ~/.claude/skills/
+```
+
+If the project will use Codex:
+
+```bash
+mkdir -p ~/.agents/skills/
+cp -r skills/* ~/.agents/skills/
+```
+
+For Claude Code on Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
+Copy-Item -Recurse -Force ".\skills\*" "$HOME\.claude\skills\"
+```
+
+For Codex on Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+Copy-Item -Recurse -Force ".\skills\*" "$HOME\.agents\skills\"
+```
 
 ## Agent Rules
 
