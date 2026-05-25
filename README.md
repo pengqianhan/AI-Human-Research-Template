@@ -27,10 +27,10 @@ are organized by material type rather than by a fixed workflow.
 
 ## TODO
 
-1. [ ] Design this template as a CLI so agents can use commands to understand the whole
+- [ ] Design this template as a CLI so agents can use commands to understand the whole
    research project.
-2. [ ] Design bash commands that make agents deterministically read specific files, such as
-   `instruction.md`, at the start of each session.
-3. [ ] Add `read_paper` workflow， which manages the process of reading a paper, including summarizing it, extracting key points, and relating it to the research project. The workflow can be used in both `Ideas/` and `References/` folders. Besides, when AI meet a problem that it cannot solve, it can use this workflow to read relevant papers and find solutions. All the new reading papers will be stored in `References/` folder, and the summary and key points will be stored in `Ideas/` folder.
-4. [ ] Add a workspace where holding a group meeting with humans and AI, humans discuss research with the AI. Because AI can search paper and read fast, they can point out if the idea is feasible or not, and they can also point out relevant papers that humans might miss. This can be a good way to brainstorm research ideas and get feedback on them. After discussion, the AI can implement the idea or feadback immediately.
-5. [ ] The final goal of the repo is to build a Research OS.
+- [ ] Design bash commands that make agents deterministically read specific files, such as `instruction.md`, at the start of each session.
+- [ ] Add memory mechanisim. Doing research is a long-term process, and the AI agent needs to remember the research progress, including the ideas, references, and experiments. The memory can be implemented as a simple database or a more complex knowledge graph. The memory can also be used to track the research progress and provide feedback to the human researcher.
+- [ ] Add `read_paper` workflow， which manages the process of reading a paper, including summarizing it, extracting key points, and relating it to the research project. The workflow can be used in both `Ideas/` and `References/` folders. Besides, when AI meet a problem that it cannot solve, it can use this workflow to read relevant papers and find solutions. All the new reading papers will be stored in `References/` folder, and the summary and key points will be stored in `Ideas/` folder.
+- [ ] Add a workspace where holding a group meeting with humans and AI, humans discuss research with the AI. Because AI can search paper and read fast, they can point out if the idea is feasible or not, and they can also point out relevant papers that humans might miss. This can be a good way to brainstorm research ideas and get feedback on them. After discussion, the AI can implement the idea or feedback immediately.
+- [ ] The final goal of the repo is to build a Research OS.
