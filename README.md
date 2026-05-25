@@ -24,3 +24,10 @@ are organized by material type rather than by a fixed workflow.
 - `Ideas/`: Research ideas, hypotheses, outlines, meeting notes, and reflections.
 - `References/`: Papers, bibliographic files, source PDFs, links, and citation material.
 - `skills/`: Research initialization skills installed through `setup.md`.
+
+## TODO
+
+1. Design this template as a CLI so agents can use commands to understand the whole
+   research project.
+2. Design bash commands that make agents deterministically read specific files, such as
+   `instruction.md`, at the start of each session.
