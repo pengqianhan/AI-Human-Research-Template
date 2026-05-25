@@ -30,3 +30,6 @@ node_modules/
 scratch/
 tmp/
 temp/
+
+# Code agent local data
+.antigravitycli/
