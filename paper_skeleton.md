@@ -1,6 +1,6 @@
 # Paper Skeleton
 
-Copy this into `04_writing/` when starting a new draft.
+Use this as a starting point for a manuscript, report, or research note.
 
 ## Title
 

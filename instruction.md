@@ -3,6 +3,10 @@
 This repository is a lightweight template for research projects where humans work with
 AI agents such as Codex or Claude Code.
 
+Research is iterative. Ideas, references, experiments, figures, and writing often update
+each other, so the folders are organized by material type instead of by a fixed sequence
+of steps.
+
 ## File Tree
 
 ```text
@@ -11,11 +15,12 @@ AI agents such as Codex or Claude Code.
 |-- CLAUDE.md
 |-- instruction.md
 |-- paper_skeleton.md
-|-- 01_materials/
-|-- 02_notes/
-|-- 03_analysis/
-|-- 04_writing/
-`-- 05_outputs/
+|-- Code/
+|-- Datasets/
+|-- Figs/
+|-- Ideas/
+|-- References/
+`-- skills/
 ```
 
 ## What Goes Where
@@ -26,22 +31,25 @@ AI agents such as Codex or Claude Code.
   `READ [instruction.md](instruction.md) first.`
 - `instruction.md`: The main guide for humans and AI agents.
 - `paper_skeleton.md`: A simple paper/report writing skeleton.
-- `01_materials/`: Original research materials, such as papers, datasets, transcripts,
-  screenshots, and web captures. Treat these files as source material and do not edit
-  them unless explicitly asked.
-- `02_notes/`: Reading notes, literature summaries, meeting notes, ideas, and research
-  questions.
-- `03_analysis/`: Code, notebooks, cleaned data, intermediate analysis, and generated
-  tables or figures.
-- `04_writing/`: Outlines, drafts, claim-evidence maps, and manuscript revisions.
-- `05_outputs/`: Final or shareable artifacts, such as manuscripts, slides,
-  supplementary files, and exported reports.
+- `Code/`: Scripts, notebooks, analysis code, data processing code, and small helper
+  tools.
+- `Datasets/`: Raw or processed datasets. Preserve original data when possible, and do
+  not overwrite user-provided data without confirmation.
+- `Figs/`: Figures, tables, plots, screenshots, and visual outputs used for analysis or
+  writing.
+- `Ideas/`: Research ideas, evolving hypotheses, notes, outlines, meeting notes,
+  experiment plans, and reflections after reading or analysis.
+- `References/`: Papers, bibliographic files, literature notes, source PDFs, links, and
+  citation material.
+- `skills/`: Project-specific agent instructions, reusable prompts, or workflow notes.
+  These are local research collaboration notes, not system-level Codex skills.
 
 ## Agent Rules
 
 1. Read this file first.
-2. Preserve original materials in `01_materials/`.
-3. Keep claims traceable to source files, notes, or analysis outputs.
-4. Do not invent citations, quotes, data, or results.
-5. If the task creates important project state, write a short note in `02_notes/`.
+2. Treat research as iterative. Do not assume work must move through the folders in a
+   fixed order.
+3. Preserve original datasets and references unless explicitly asked to modify them.
+4. Keep claims traceable to references, notes, data, code, or figures.
+5. Do not invent citations, quotes, data, or results.
 6. Ask before deleting or rewriting user-provided research materials.
