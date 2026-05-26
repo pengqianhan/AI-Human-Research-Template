@@ -9,8 +9,9 @@ of steps.
 
 ## File Tree
 
-Generated from `git ls-files | grep -Ev '(^|/)\.gitkeep$'`. The `skills/`
-subtree is summarized because skill details live in `skills/README.md`.
+Generated from `git ls-files | grep -Ev '(^|/)\.gitkeep$'`.
+`Research-skills-hub/` is summarized so this file does not need updates when
+individual skill files change.
 
 ```text
 .
@@ -28,14 +29,8 @@ subtree is summarized because skill details live in `skills/README.md`.
 |-- References/
 |   |-- paper_notes.md
 |   `-- refs.bib
-`-- skills/
-    |-- README.md
-    |-- literature_search_arxiv/
-    |-- literature_search_biorxiv/
-    |-- literature_search_europepmc/
-    |-- literature_search_openalex/
-    |-- uv/
-    `-- workflow_skill_creator/
+`-- Research-skills-hub/
+    `-- README.md
 ```
 
 ## What Goes Where
@@ -46,6 +41,10 @@ subtree is summarized because skill details live in `skills/README.md`.
 - `CLAUDE.md`: Entry-point instructions for Claude Code-style agents.
 - `README.md`: Human-facing overview of the Research OS template and starting
   workflow.
+- `Research-skills-hub/`: Self-contained hub for optional research skills and
+  their helper files.
+- `Research-skills-hub/README.md`: Short index of available skills. Read it only
+  when skill details are needed.
 - `instruction.md`: The main guide for humans and AI agents.
 - `setup.md`: One-time setup steps after cloning this template for a new research
   project.
@@ -64,9 +63,6 @@ subtree is summarized because skill details live in `skills/README.md`.
   takeaways.
 - `References/refs.bib`: Project bibliography file for BibTeX-compatible
   citations.
-- `skills/`: Research initialization skills. Install them during setup using
-  `setup.md`. Read `skills/README.md` only when skill details are needed.
-- `skills/README.md`: Short index of available skills and their intended use.
 - Empty research folders may contain `.gitkeep` files so Git can track them.
 
 ## Agent Rules
