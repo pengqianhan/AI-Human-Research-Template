@@ -9,8 +9,8 @@ of steps.
 
 ## File Tree
 
-Generated from `git ls-files | grep -Ev '(^|/)\.gitkeep$'`.
-`Research-skills-hub/` is summarized so this file does not need updates when
+Condensed from `git ls-files`, with `.gitkeep` placeholders omitted and
+`Research-skills-hub/` summarized so this file does not need updates when
 individual skill files change.
 
 ```text
@@ -20,12 +20,13 @@ individual skill files change.
 |-- CLAUDE.md
 |-- README.md
 |-- instruction.md
-|-- paper_skeleton.md
 |-- setup.md
 |-- Code/
-|-- Datasets/
-|-- Figs/
+|   `-- Datasets/
 |-- Ideas/
+|-- Paper/
+|   |-- Figs/
+|   `-- paper_skeleton.md
 |-- References/
 |   |-- paper_notes.md
 |   `-- refs.bib
@@ -43,20 +44,22 @@ individual skill files change.
   workflow.
 - `Research-skills-hub/`: Self-contained hub for optional research skills and
   their helper files.
-- `Research-skills-hub/README.md`: Short index of available skills. Read it only
-  when skill details are needed.
+- `Research-skills-hub/README.md`: Short index of skills under
+  `Research-skills-hub/skills/`. Read it only when skill details are needed.
 - `instruction.md`: The main guide for humans and AI agents.
 - `setup.md`: One-time setup steps after cloning this template for a new research
   project.
-- `paper_skeleton.md`: A simple paper/report writing skeleton.
 - `Code/`: Scripts, notebooks, analysis code, data processing code, and small helper
   tools.
-- `Datasets/`: Raw or processed datasets. Preserve original data when possible, and do
-  not overwrite user-provided data without confirmation.
-- `Figs/`: Figures, tables, plots, screenshots, and visual outputs used for analysis or
-  writing.
+- `Code/Datasets/`: Raw or processed datasets. Preserve original data when
+  possible, and do not overwrite user-provided data without confirmation.
 - `Ideas/`: Research ideas, evolving hypotheses, notes, outlines, meeting notes,
   experiment plans, and reflections after reading or analysis.
+- `Paper/`: Writing materials for papers, reports, manuscripts, and related
+  outputs.
+- `Paper/Figs/`: Figures, tables, plots, screenshots, and visual outputs used
+  for analysis or writing.
+- `Paper/paper_skeleton.md`: A simple paper/report writing skeleton.
 - `References/`: Papers, bibliographic files, literature notes, source PDFs, links, and
   citation material.
 - `References/paper_notes.md`: Shared notes for reading papers and recording key

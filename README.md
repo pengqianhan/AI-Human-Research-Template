@@ -18,12 +18,16 @@ are organized by material type rather than by a fixed workflow.
 
 ## Folders
 
-- `Code/`: Scripts, notebooks, analysis code, and helper tools.
-- `Datasets/`: Raw or processed datasets.
-- `Figs/`: Figures, tables, plots, screenshots, and visual outputs.
+- `Code/`: Scripts, notebooks, analysis code, helper tools, and data-processing
+  code.
+- `Code/Datasets/`: Raw or processed datasets.
 - `Ideas/`: Research ideas, hypotheses, outlines, meeting notes, and reflections.
+- `Paper/`: Writing materials for papers, reports, manuscripts, and related
+  outputs.
+- `Paper/Figs/`: Figures, tables, plots, screenshots, and visual outputs.
 - `References/`: Papers, bibliographic files, source PDFs, links, and citation material.
-- `skills/`: Research initialization skills installed through `setup.md`.
+- `Research-skills-hub/`: Optional research skills and helper files. See
+  `Research-skills-hub/README.md` for the skill index.
 
 ## TODO
 
