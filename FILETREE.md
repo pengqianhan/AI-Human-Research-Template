@@ -23,7 +23,7 @@ _Auto-maintained compact navigation index by the filetree-simple skill. Indexed 
 
 ## .agents/skills/
 
-- `filetree-simple/` - Compact FILETREE.md maintenance skill and helper script. <!--hash:4337cccc-->
+- `filetree-simple/` - Compact FILETREE.md maintenance skill and helper script. <!--hash:0a82c6f3-->
 
 ## Code/
 

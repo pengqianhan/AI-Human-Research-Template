@@ -105,3 +105,10 @@ entry points:
 - Do not summarize skipped or compacted-away files; entrypoint files should
   cover their subtree at a navigational level.
 - Do not rewrite summaries just because hashes changed.
+
+## Credits
+
+Inspired by [nekocode/filetree-skill](https://github.com/nekocode/filetree-skill),
+an MIT-licensed Claude Code plugin for maintaining `FILETREE.md`. This local
+version adapts the idea for a compact, README/SKILL-first repository navigation
+index.
