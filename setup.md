@@ -4,7 +4,7 @@ Use this file once after cloning the template for a new research project.
 
 ## Install Research Skills
 
-The `skills/` folder contains research initialization skills. Install them into the
+The `Research-skills-hub` folder contains research initialization skills and a skills map (`Research-skills-hub\skills_map.md`) that outlines the available skills. Install them into the
 user-level skills directory for the code agent you will use.
 
 ### Claude Code
