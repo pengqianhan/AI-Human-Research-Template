@@ -1,6 +1,6 @@
 # Project Filetree
 
-_Auto-maintained compact navigation index by the filetree skill. Indexed entries carry content hashes; mismatches indicate stale summaries._
+_Auto-maintained compact navigation index by the filetree-simple skill. Indexed entries carry content hashes; mismatches indicate stale summaries._
 
 ## (root)/
 
