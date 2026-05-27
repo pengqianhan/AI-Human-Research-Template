@@ -1,1 +1,1 @@
-READ [instruction.md](instruction.md) first.
+READ [INSTRUCTION.md](INSTRUCTION.md) and [FILETREE.md](FILETREE.md)
