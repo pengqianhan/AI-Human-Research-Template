@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -12,6 +13,14 @@ from pathlib import Path, PurePosixPath
 
 
 MANIFEST_PATH = Path("FILETREE.md")
+ENTRYPOINT_FILENAMES = ("README.md", "SKILL.md")
+README_INDEXED_SUBTREES = {
+    "Research-skills-hub": {
+        "files": ("README.md",),
+        "dirs": ("skills",),
+        "hash_source": "README.md",
+    },
+}
 
 SKIP_EXTENSIONS = {
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".svg", ".bmp",
@@ -53,8 +62,197 @@ def should_skip(path: str) -> bool:
     return p.suffix.lower() in SKIP_EXTENSIONS or p.name in SKIP_FILENAMES
 
 
-def list_current_files() -> list[str]:
-    """Return tracked plus untracked-unignored files, deduped and sorted."""
+def normalize_repo_path(path: str) -> str:
+    """Use slash-separated repository paths across platforms."""
+    return path.replace("\\", "/")
+
+
+def is_entrypoint_file(path: str) -> bool:
+    """Return whether path is a directory-level navigation entrypoint."""
+    return PurePosixPath(path).name in ENTRYPOINT_FILENAMES
+
+
+def parent_dir(path: str) -> str:
+    """Return a normalized parent directory for files or slash-ended dirs."""
+    normalized = normalize_repo_path(path).rstrip("/")
+    parent = PurePosixPath(normalized).parent
+    return "" if str(parent) == "." else str(parent)
+
+
+def ancestors(path: str) -> list[str]:
+    """Return non-root ancestor directories for a file or directory path."""
+    current = parent_dir(path)
+    result: list[str] = []
+    while current:
+        result.append(current)
+        current = parent_dir(current)
+    return result
+
+
+def has_entrypoint_ancestor(path: str, entrypoint_dirs: set[str]) -> bool:
+    """Return whether a non-root ancestor directory has README.md or SKILL.md."""
+    for parent in ancestors(path):
+        if parent in entrypoint_dirs:
+            return True
+    return False
+
+
+def directory_path(path: str) -> str:
+    """Convert a normalized directory path to manifest form."""
+    return normalize_repo_path(path).rstrip("/") + "/"
+
+
+def entrypoint_sources(paths: list[str]) -> dict[str, str]:
+    """Return directory entrypoint source files, preferring README.md."""
+    path_set = set(paths)
+    sources: dict[str, str] = {}
+    directories = {parent_dir(path) for path in paths if parent_dir(path)}
+    for directory in sorted(directories):
+        for filename in ENTRYPOINT_FILENAMES:
+            candidate = f"{directory}/{filename}"
+            if candidate in path_set:
+                sources[directory] = candidate
+                break
+    return sources
+
+
+def list_directories(paths: list[str]) -> list[str]:
+    """Return all non-root directories implied by repository files."""
+    directories: set[str] = set()
+    for path in paths:
+        current = parent_dir(path)
+        while current:
+            directories.add(current)
+            current = parent_dir(current)
+    return sorted(directories)
+
+
+def directory_hash(directory: str, all_paths: list[str]) -> str:
+    """Return a deterministic structural hash for a directory entry."""
+    prefix = f"{directory}/"
+    children: set[str] = set()
+    for path in all_paths:
+        if not path.startswith(prefix):
+            continue
+        remainder = path[len(prefix):]
+        if not remainder:
+            continue
+        first, _, rest = remainder.partition("/")
+        children.add(f"{first}/" if rest else first)
+    payload = f"{directory}\0" + "\n".join(sorted(children))
+    return hashlib.sha1(payload.encode("utf-8")).hexdigest()[:8]
+
+
+def collapsed_subtree_roots(paths: list[str]) -> set[str]:
+    """Return configured subtree roots present in the repository."""
+    return {
+        root
+        for root in README_INDEXED_SUBTREES
+        if any(path == root or path.startswith(f"{root}/") for path in paths)
+    }
+
+
+def is_collapsed_descendant(path: str, roots: set[str]) -> bool:
+    """Return whether path is inside, but not equal to, a collapsed root."""
+    normalized = normalize_repo_path(path).rstrip("/")
+    return any(normalized.startswith(f"{root}/") for root in roots)
+
+
+def collapsed_index_paths(
+    paths: list[str], useful_files: list[str], roots: set[str]
+) -> tuple[set[str], set[str], dict[str, str]]:
+    """Return forced file/dir entries and source-backed directory hashes."""
+    normalized = set(paths)
+    useful = set(useful_files)
+    forced_files: set[str] = set()
+    forced_dirs: set[str] = set()
+    dir_hash_sources: dict[str, str] = {}
+
+    for root in sorted(roots):
+        config = README_INDEXED_SUBTREES[root]
+        hash_source = f"{root}/{config['hash_source']}"
+
+        for filename in config.get("files", ()):
+            file_path = f"{root}/{filename}"
+            if file_path in useful:
+                forced_files.add(file_path)
+
+        for dirname in config.get("dirs", ()):
+            dir_path = directory_path(f"{root}/{dirname}")
+            if any(path.startswith(dir_path) for path in normalized):
+                forced_dirs.add(dir_path)
+                if hash_source in useful:
+                    dir_hash_sources[dir_path] = hash_source
+
+    return forced_files, forced_dirs, dir_hash_sources
+
+
+def build_index(paths: list[str]) -> tuple[list[str], dict[str, str]]:
+    """Build compact manifest paths and source-backed hashes."""
+    normalized = sorted({normalize_repo_path(path) for path in paths if path})
+    useful_files = [path for path in normalized if not should_skip(path)]
+    sources = entrypoint_sources(useful_files)
+    entrypoint_dirs = set(sources)
+    collapsed_roots = collapsed_subtree_roots(normalized)
+    forced_files, forced_dirs, dir_hash_sources = collapsed_index_paths(
+        normalized, useful_files, collapsed_roots
+    )
+    directories = [
+        directory
+        for directory in list_directories(normalized)
+        if not is_collapsed_descendant(directory, collapsed_roots)
+    ]
+
+    indexed_dirs = [
+        directory_path(directory)
+        for directory in directories
+        if directory in entrypoint_dirs
+        or not has_entrypoint_ancestor(directory_path(directory), entrypoint_dirs)
+    ]
+
+    indexed_files = [
+        path
+        for path in useful_files
+        if (
+            path in forced_files
+            or not parent_dir(path)
+            or (
+                not is_entrypoint_file(path)
+                and not has_entrypoint_ancestor(path, entrypoint_dirs)
+                and not is_collapsed_descendant(path, collapsed_roots)
+            )
+        )
+    ]
+
+    indexed_paths = sorted(
+        set(indexed_dirs + indexed_files) | forced_dirs,
+        key=lambda path: (
+            parent_dir(path).lower(),
+            0 if path.endswith("/") else 1,
+            path.rstrip("/").lower(),
+        ),
+    )
+
+    file_hashes = hash_files(sorted(set(indexed_files) | set(sources.values())))
+    hashes: dict[str, str] = {}
+    for path in indexed_paths:
+        if path.endswith("/"):
+            directory = path.rstrip("/")
+            source = dir_hash_sources.get(path) or sources.get(directory)
+            hashes[path] = file_hashes[source] if source else directory_hash(directory, normalized)
+        else:
+            hashes[path] = file_hashes[path]
+    return indexed_paths, hashes
+
+
+def compact_index_files(paths: list[str]) -> list[str]:
+    """Return compact FILETREE.md index paths."""
+    indexed_paths, _ = build_index(paths)
+    return indexed_paths
+
+
+def list_repo_files() -> list[str]:
+    """Return tracked plus untracked-unignored files."""
     tracked = subprocess.check_output(
         ["git", "-c", "core.quotePath=false", "ls-files", "-z"],
         encoding="utf-8",
@@ -84,7 +282,22 @@ def list_current_files() -> list[str]:
     ).split("\0")
 
     files = set(tracked) | set(untracked)
-    return sorted(f for f in files if f and f not in gitlinks and not should_skip(f))
+    repo_files = [
+        normalize_repo_path(f)
+        for f in files
+        if f and f not in gitlinks
+    ]
+    return sorted(set(repo_files))
+
+
+def list_useful_files() -> list[str]:
+    """Return useful tracked plus untracked-unignored files."""
+    return [path for path in list_repo_files() if not should_skip(path)]
+
+
+def list_current_files() -> list[str]:
+    """Return compact FILETREE.md index paths."""
+    return compact_index_files(list_repo_files())
 
 
 def hash_files(paths: list[str]) -> dict[str, str]:
@@ -176,12 +389,16 @@ def parse_manifest() -> list[dict[str, str]]:
 
         filename, summary, digest = entry_match.groups()
         filename = _unquote_git_path(filename)
-        if "/" in filename:
-            path = filename
+        is_directory = filename.endswith("/")
+        normalized_name = filename.rstrip("/") if is_directory else filename
+        if "/" in normalized_name:
+            path = normalized_name
         elif section:
-            path = f"{section}/{filename}"
+            path = f"{section}/{normalized_name}"
         else:
-            path = filename
+            path = normalized_name
+        if is_directory:
+            path = directory_path(path)
         entries.append({"path": path, "summary": summary.strip(), "hash": digest})
     return entries
 
@@ -190,15 +407,13 @@ def write_manifest(entries: list[dict[str, str]]) -> None:
     """Group by directory, sort stably, and write FILETREE.md."""
     by_dir: dict[str, list[dict[str, str]]] = {}
     for entry in entries:
-        directory = str(PurePosixPath(entry["path"]).parent)
-        if directory == ".":
-            directory = ""
+        directory = parent_dir(entry["path"])
         by_dir.setdefault(directory, []).append(entry)
 
     lines = [
         "# Project Filetree",
         "",
-        "_Auto-maintained by the filetree skill. Each entry carries a content hash; mismatched hashes indicate stale summaries._",
+        "_Auto-maintained compact navigation index by the filetree skill. Indexed entries carry content hashes; mismatches indicate stale summaries._",
         "",
     ]
 
@@ -206,8 +421,17 @@ def write_manifest(entries: list[dict[str, str]]) -> None:
         heading = f"{directory}/" if directory else "(root)/"
         lines.append(f"## {heading}")
         lines.append("")
-        for entry in sorted(by_dir[directory], key=lambda item: item["path"]):
-            filename = PurePosixPath(entry["path"]).name
+        for entry in sorted(
+            by_dir[directory],
+            key=lambda item: (
+                0 if item["path"].endswith("/") else 1,
+                item["path"].rstrip("/").lower(),
+            ),
+        ):
+            if entry["path"].endswith("/"):
+                filename = PurePosixPath(entry["path"].rstrip("/")).name + "/"
+            else:
+                filename = PurePosixPath(entry["path"]).name
             lines.append(f"- `{filename}` - {entry['summary']} <!--hash:{entry['hash']}-->")
         lines.append("")
 
@@ -219,14 +443,17 @@ def write_manifest(entries: list[dict[str, str]]) -> None:
 def cmd_todo() -> dict:
     """Diff current repository files against FILETREE.md."""
     require_git()
-    current_paths = set(list_current_files())
+    repo_paths = set(list_useful_files())
+    current_list, hashes = build_index(list_repo_files())
+    current_paths = set(current_list)
     manifest = parse_manifest()
     manifest_by_path = {entry["path"]: entry for entry in manifest}
 
     renames = [
-        {"old_path": old, "new_path": new}
+        {"old_path": normalize_repo_path(old), "new_path": normalize_repo_path(new)}
         for old, new in detect_renames()
-        if old in manifest_by_path and not should_skip(new)
+        if normalize_repo_path(old) in manifest_by_path
+        and normalize_repo_path(new) in current_paths
     ]
     renamed_olds = {item["old_path"] for item in renames}
     renamed_news = {item["new_path"] for item in renames}
@@ -234,8 +461,6 @@ def cmd_todo() -> dict:
     added_paths = sorted(current_paths - set(manifest_by_path) - renamed_news)
     removed = sorted(set(manifest_by_path) - current_paths - renamed_olds)
     common = sorted(current_paths & set(manifest_by_path))
-
-    hashes = hash_files(common + added_paths)
 
     changed = []
     for path in common:
@@ -255,7 +480,8 @@ def cmd_todo() -> dict:
         "removed": removed,
         "renamed": renames,
         "stats": {
-            "total_in_repo": len(current_paths),
+            "total_in_repo": len(repo_paths),
+            "total_indexed": len(current_paths),
             "total_in_manifest": len(manifest_by_path),
             "need_llm": len(added_paths) + len(changed),
         },
@@ -266,7 +492,8 @@ def cmd_apply(payload: str) -> dict[str, int]:
     """Apply summary decisions to FILETREE.md."""
     require_git()
     updates = json.loads(payload)
-    current_paths = set(list_current_files())
+    current_list, hashes = build_index(list_repo_files())
+    current_paths = set(current_list)
     by_path = {entry["path"]: entry for entry in parse_manifest()}
 
     for rename in updates.get("renames", []):
@@ -275,7 +502,7 @@ def cmd_apply(payload: str) -> dict[str, int]:
         if old_path in by_path and new_path in current_paths:
             entry = by_path.pop(old_path)
             entry["path"] = new_path
-            entry["hash"] = hash_files([new_path]).get(new_path, entry["hash"])
+            entry["hash"] = hashes.get(new_path, entry["hash"])
             by_path[new_path] = entry
 
     for path in updates.get("removals", []):
